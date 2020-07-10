@@ -928,6 +928,11 @@ class Downloader(commands.Cog):
         """Update all cogs, or ones of your choosing."""
         await self._cog_update_logic(ctx, cogs=cogs)
 
+    @cog.command(name="updatereload")
+    async def _cog_updr(self, ctx: commands.Context, *cogs: InstalledCog) -> None:
+        """Update all cogs, or ones of your choosing, then reload"""
+        await self._cog_update_logic(ctx, cogs=cogs, reload=True)
+
     @cog.command(name="updateallfromrepos", usage="<repos>")
     async def _cog_updateallfromrepos(self, ctx: commands.Context, *repos: Repo) -> None:
         """Update all cogs from repos of your choosing."""
@@ -956,6 +961,7 @@ class Downloader(commands.Cog):
         repos: Optional[List[Repo]] = None,
         rev: Optional[str] = None,
         cogs: Optional[List[InstalledModule]] = None,
+        reload: Optional[bool],
     ) -> None:
         failed_repos = set()
         updates_available = set()
@@ -1063,7 +1069,10 @@ class Downloader(commands.Cog):
         await self.send_pagified(ctx, message)
 
         if updates_available and updated_cognames:
-            await self._ask_for_cog_reload(ctx, updated_cognames)
+            if reload:
+                await ctx.invoke(ctx.bot.get_cog("Core").reload, *updated_cognames)
+            else:
+                await self._ask_for_cog_reload(ctx, updated_cognames)
 
     @cog.command(name="list", usage="<repo_name>")
     async def _cog_list(self, ctx: commands.Context, repo: Repo) -> None:
@@ -1409,9 +1418,9 @@ class Downloader(commands.Cog):
 
         if await ctx.embed_requested():
             embed = discord.Embed(color=(await ctx.embed_colour()))
-            embed.add_field(name=_("Command:"), value=command_name, inline=False)
-            embed.add_field(name=_("Cog Name:"), value=cog_name, inline=False)
-            embed.add_field(name=_("Made by:"), value=made_by, inline=False)
+            embed.add_field(name=_("Command:"), value=("`{}`").format(command_name), inline=True)
+            embed.add_field(name=_("Cog Name:"), value=("`{}`").format(cog_name), inline=True)
+            embed.add_field(name=_("Made by:"), value=("`{}`").format(made_by), inline=True)
             embed.add_field(name=_("Repo URL:"), value=repo_url, inline=False)
             if installed and cog_installable.repo is not None and cog_installable.repo.branch:
                 embed.add_field(
