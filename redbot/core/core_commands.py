@@ -923,7 +923,7 @@ class Core(commands.Cog, CoreLogic):
         skin = "\N{EMOJI MODIFIER FITZPATRICK TYPE-3}"
         with contextlib.suppress(discord.HTTPException):
             if not silently:
-                await ctx.send(_("Shutting down... ") + wave + skin)
+                await ctx.maybe_send_embed(_("Shutting down! ") + wave + skin)
         await ctx.bot.shutdown()
 
     @commands.command(name="restart")
@@ -934,9 +934,11 @@ class Core(commands.Cog, CoreLogic):
         Makes Red quit with exit code 26.
         The restart is not guaranteed: it must be dealt
         with by the process manager in use."""
+        wave = "\N{WAVING HAND SIGN}"
+        skin = "\N{EMOJI MODIFIER FITZPATRICK TYPE-3}"
         with contextlib.suppress(discord.HTTPException):
             if not silently:
-                await ctx.send(_("Restarting..."))
+                await ctx.maybe_send_embed(_("Restarting! See you soon " + wave + skin))
         await ctx.bot.shutdown(restart=True)
 
     @commands.group(name="set")
