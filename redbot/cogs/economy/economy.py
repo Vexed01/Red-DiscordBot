@@ -379,10 +379,10 @@ class Economy(commands.Cog):
                 pos = await bank.get_leaderboard_position(author)
                 await ctx.maybe_send_embed(
                     _(
-                        "{author} Here, take some {currency}.\n"
-                        "Enjoy! You've got {amount} more {currency}!)\n\n"
-                        "You currently have {new_balance} {currency}.\n\n"
-                        "You are currently #{pos} on the global leaderboard!"
+                        "Here, take some {currency} {author.name}:\n\n"
+                        "You've got **{amount} more {currency}**!\n\n"
+                        "You now have **{new_balance} {currency}**.\n\n"
+                        "You are currently **#{pos}** on the global leaderboard!"
                         "{extra}"
                     ).format(
                         author=author,
