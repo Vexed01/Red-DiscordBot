@@ -251,7 +251,7 @@ def init_events(bot, cli_flags):
                 emb = discord.Embed(color=(await ctx.embed_colour()),)
                 emb.add_field(
                     name=(
-                        "I ran into a problem with '{}' - you can contact the owner, Vexed."
+                        "I ran into a problem with `{}` - you can contact the owner, Vexed."
                     ).format(ctx.command.qualified_name),
                     value=("```py\n{}```".format(error)),
                 )
