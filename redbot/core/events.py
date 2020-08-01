@@ -247,15 +247,28 @@ def init_events(bot, cli_flags):
                 exc_info=error.original,
             )
 
-            message = _(
-                "Error in command '{command}'. Check your console or logs for details."
-            ).format(command=ctx.command.qualified_name)
+            if await ctx.embed_requested():
+                emb = discord.Embed(color=(await ctx.embed_colour()),)
+                emb.add_field(
+                    name=(
+                        "I ran into a problem with '{}' - you can contact the owner, Vexed."
+                    ).format(ctx.command.qualified_name),
+                    value=("```py\n{}```".format(error)),
+                )
+                emb.set_footer(text="For a more detailed traceback, check the logs.")
+                await ctx.send(embed=emb)
+            else:
+                msg = (
+                    "Sorry to say, but I ran into a problem with '{}' - you can contact the owner, Vexed."
+                    "```py\n{}```".format(ctx.command.qualified_name, type(error))
+                )
+                await ctx.send(msg)
+
             exception_log = "Exception in command '{}'\n" "".format(ctx.command.qualified_name)
             exception_log += "".join(
                 traceback.format_exception(type(error), error, error.__traceback__)
             )
             bot._last_exception = exception_log
-            await ctx.send(inline(message))
         elif isinstance(error, commands.CommandNotFound):
             help_settings = await HelpSettings.from_context(ctx)
             fuzzy_commands = await fuzzy_command_search(
