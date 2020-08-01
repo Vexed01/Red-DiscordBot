@@ -259,7 +259,7 @@ def init_events(bot, cli_flags):
                 await ctx.send(embed=emb)
             else:
                 msg = (
-                    "Sorry to say, but I ran into a problem with '{}' - you can contact the owner, Vexed."
+                    "Sorry to say, but I ran into a problem with `{}` - you can contact the owner, Vexed."
                     "```py\n{}```".format(ctx.command.qualified_name, type(error))
                 )
                 await ctx.send(msg)
