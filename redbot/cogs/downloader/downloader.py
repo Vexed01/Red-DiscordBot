@@ -961,7 +961,7 @@ class Downloader(commands.Cog):
         repos: Optional[List[Repo]] = None,
         rev: Optional[str] = None,
         cogs: Optional[List[InstalledModule]] = None,
-        reload: Optional[bool],
+        reload: Optional[bool] = False,
     ) -> None:
         failed_repos = set()
         updates_available = set()
