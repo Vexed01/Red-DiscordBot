@@ -409,7 +409,7 @@ class Economy(commands.Cog):
                         new_balance=humanize_number(await bank.get_balance(author)),
                         pos=humanize_number(pos) if pos else pos,
                         extra=(
-                            "\nThanks for useing Vance's economy, though you probably didn't mean to!"
+                            "\nThanks for using Vance's economy, though you probably didn't mean to!"
                             if ctx.guild.id == 133049272517001216
                             else ""
                         ),
@@ -472,7 +472,7 @@ class Economy(commands.Cog):
                         new_balance=humanize_number(await bank.get_balance(author)),
                         pos=humanize_number(pos) if pos else pos,
                         extra=(
-                            "\n\nThanks for useing Vance's economy, though you probably didn't mean to!"
+                            "\n\nThanks for using Vance's economy, though you probably didn't mean to!"
                             if ctx.guild.id == 133049272517001216
                             else ""
                         ),
