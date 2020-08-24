@@ -410,7 +410,7 @@ class Economy(commands.Cog):
                         pos=humanize_number(pos) if pos else pos,
                         extra=(
                             "\nThanks for using Vance's economy, though you probably didn't mean to!"
-                            if ctx.guild.id == 133049272517001216
+                            if ctx.guild.id == 133049272517001216 and ctx.clean_prefix == "!"
                             else ""
                         ),
                     )
