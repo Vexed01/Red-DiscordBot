@@ -102,6 +102,7 @@ class RedBase(
             regional_format=None,
             embeds=True,
             color=15158332,
+            sudotime=15 * 60,  # 15 minutes default
             fuzzy=False,
             custom_info=None,
             help__page_char_limit=1000,
@@ -197,6 +198,10 @@ class RedBase(
         self._main_dir = bot_dir
         self._cog_mgr = CogManager()
         self._use_team_features = cli_flags.use_team_features
+        self._sudo_enabled = cli_flags.enable_sudo
+        if self._sudo_enabled:
+            self._true_owner_ids = kwargs.pop("owner_ids", set())
+
         # to prevent multiple calls to app info in `is_owner()`
         self._app_owners_fetched = False
         super().__init__(*args, help_command=None, **kwargs)
@@ -204,6 +209,8 @@ class RedBase(
         # for a documented API. The internals of this object are still subject to change.
         self._help_formatter = commands.help.RedHelpFormatter()
         self.add_command(commands.help.red_help)
+        if self._sudo_enabled is False:
+            self._true_owner_ids = self.owner_ids
 
         self._permissions_hooks: List[commands.CheckPredicate] = []
         self._red_ready = asyncio.Event()
@@ -725,7 +732,7 @@ class RedBase(
         if self._owner_id_overwrite is None:
             self._owner_id_overwrite = await self._config.owner()
         if self._owner_id_overwrite is not None:
-            self.owner_ids.add(self._owner_id_overwrite)
+            self._true_owner_ids.add(self._owner_id_overwrite)
 
         i18n_locale = await self._config.locale()
         i18n.set_locale(i18n_locale)
@@ -917,11 +924,11 @@ class RedBase(
             if app.team:
                 if self._use_team_features:
                     ids = {m.id for m in app.team.members}
-                    self.owner_ids.update(ids)
+                    self._true_owner_ids.update(ids)
                     ret = user.id in ids
             elif self._owner_id_overwrite is None:
                 owner_id = app.owner.id
-                self.owner_ids.add(owner_id)
+                self._true_owner_ids.add(owner_id)
                 ret = user.id == owner_id
             self._app_owners_fetched = True
 
@@ -1367,7 +1374,7 @@ class RedBase(
         await self.wait_until_red_ready()
         destinations = []
         opt_outs = await self._config.owner_opt_out_list()
-        for user_id in self.owner_ids:
+        for user_id in self._true_owner_ids:
             if user_id not in opt_outs:
                 user = self.get_user(user_id)
                 if user and not user.bot:  # user.bot is possible with flags and teams
