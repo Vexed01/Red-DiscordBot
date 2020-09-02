@@ -245,26 +245,10 @@ def init_events(bot, cli_flags):
                 "Exception in command '{}'".format(ctx.command.qualified_name),
                 exc_info=error.original,
             )
-
-            if await ctx.embed_requested():
-                emb = discord.Embed(color=(await ctx.embed_colour()),)
-                emb.add_field(
-                    name=("I ran into a problem with `{}`. This has been logged.").format(
-                        ctx.command.qualified_name
-                    ),
-                    value=("```py\n{}```".format(error)),
-                )
-                if ctx.author.id == 418078199982063626:
-                    emb.set_footer(
-                        text="As you are Vexed, for a more detailed traceback, you can use the `[p]tt` command."
-                    )
-                await ctx.send(embed=emb)
-            else:
-                msg = (
-                    "Sorry to say, but I ran into a problem with `{}`. This has been logged."
-                    "```py\n{}```".format(ctx.command.qualified_name, type(error))
-                )
-                await ctx.send(msg)
+            msg = "Sorry to disapoint, but I ran into a problem with `{}`. This has been logged\nError timestamp: {}.".format(
+                ctx.command.qualified_name, (datetime.now()).strftime("%y-%m-%d %H:%M:%S")
+            )
+            await ctx.send(msg)
 
             exception_log = "Exception in command '{}'\n" "".format(ctx.command.qualified_name)
             exception_log += "".join(
