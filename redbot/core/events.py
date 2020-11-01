@@ -22,7 +22,12 @@ from redbot.core.i18n import (
     set_contextual_locales_from_guild,
 )
 from .utils import AsyncIter
-from .. import __version__ as red_version, version_info as red_version_info, VersionInfo
+from .. import (
+    __version__ as red_version,
+    version_info as red_version_info,
+    vance_version,
+    VersionInfo,
+)
 from . import commands
 from .config import get_latest_confs
 from .utils._internal_utils import (
@@ -147,8 +152,10 @@ def init_events(bot, cli_flags):
                         if platform.system() == "Windows"
                         else _("Terminal")
                     )
-                    extra_update += '```"{python}" -m pip install -U Red-DiscordBot{package_extras}```'.format(
-                        python=sys.executable, package_extras=package_extras
+                    extra_update += (
+                        '```"{python}" -m pip install -U Red-DiscordBot{package_extras}```'.format(
+                            python=sys.executable, package_extras=package_extras
+                        )
                     )
 
                 else:
