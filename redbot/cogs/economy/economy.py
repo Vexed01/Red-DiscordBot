@@ -564,8 +564,7 @@ class Economy(commands.Cog):
                     embed.description = box(temp_msg, lang="md")
                     embed.set_footer(
                         text=footer_message.format(
-                            page_num=len(highscores) + 1,
-                            page_len=ceil(len(bank_sorted) / 10),
+                            page_num=len(highscores) + 1, page_len=ceil(len(bank_sorted) / 10),
                         )
                     )
                     highscores.append(embed)
@@ -580,8 +579,7 @@ class Economy(commands.Cog):
                 embed.description = box(temp_msg, lang="md")
                 embed.set_footer(
                     text=footer_message.format(
-                        page_num=len(highscores) + 1,
-                        page_len=ceil(len(bank_sorted) / 10),
+                        page_num=len(highscores) + 1, page_len=ceil(len(bank_sorted) / 10),
                     )
                 )
                 highscores.append(embed)

@@ -403,16 +403,7 @@ class Case:
             if self.reason:
                 reason = _("**Reason:** {}").format(self.reason)
                 if len(reason) > 2048:
-                    reason = (
-                        next(
-                            pagify(
-                                reason,
-                                delims=[" ", "\n"],
-                                page_length=2000,
-                            )
-                        )
-                        + "..."
-                    )
+                    reason = next(pagify(reason, delims=[" ", "\n"], page_length=2000,)) + "..."
             emb = discord.Embed(title=title, description=reason)
             emb.set_author(name=user)
             emb.add_field(name=_("Moderator"), value=moderator, inline=False)
@@ -438,16 +429,7 @@ class Case:
             if self.reason:
                 reason = _("**Reason:** {}").format(self.reason)
                 if len(reason) > 1000:
-                    reason = (
-                        next(
-                            pagify(
-                                reason,
-                                delims=[" ", "\n"],
-                                page_length=1000,
-                            )
-                        )
-                        + "..."
-                    )
+                    reason = next(pagify(reason, delims=[" ", "\n"], page_length=1000,)) + "..."
             user = filter_mass_mentions(filter_urls(user))  # Further sanitization outside embeds
             case_text = ""
             case_text += "{}\n".format(title)

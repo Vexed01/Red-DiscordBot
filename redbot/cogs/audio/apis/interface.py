@@ -110,9 +110,7 @@ class AudioAPIInterface:
         return track
 
     async def route_tasks(
-        self,
-        action_type: str = None,
-        data: Union[List[MutableMapping], MutableMapping] = None,
+        self, action_type: str = None, data: Union[List[MutableMapping], MutableMapping] = None,
     ) -> None:
         """Separate the tasks and run them in the appropriate functions."""
 

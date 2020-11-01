@@ -2703,9 +2703,7 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
                 inline=False,
             )
             e.add_field(
-                name="Data path",
-                value=escape(str(data_path), formatting=True),
-                inline=False,
+                name="Data path", value=escape(str(data_path), formatting=True), inline=False,
             )
             e.add_field(
                 name="Metadata file",
