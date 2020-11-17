@@ -196,6 +196,8 @@ def init_events(bot, cli_flags):
         print(Style.RESET_ALL)
         print(bordered(INFO, INFO2, ascii_border=ascii_border))
 
+        print("\nVance version is {}".format(vance_version))
+
         if invite_url:
             print("\nInvite URL: {}\n".format(invite_url))
 
@@ -257,7 +259,7 @@ def init_events(bot, cli_flags):
                 "Exception in command '{}'".format(ctx.command.qualified_name),
                 exc_info=error.original,
             )
-            msg = "Sorry to disapoint, but I ran into a problem with `{}`. This has been logged\nError timestamp: {}.".format(
+            msg = "I ran into a problem with `{}`. This has been logged.\nError timestamp: `{}`.".format(
                 ctx.command.qualified_name, (datetime.now()).strftime("%y-%m-%d %H:%M:%S")
             )
             await ctx.send(msg)
