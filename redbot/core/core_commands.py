@@ -2736,9 +2736,7 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
                 inline=False,
             )
             e.add_field(
-                name="Data path",
-                value=escape(str(data_path), formatting=True),
-                inline=False,
+                name="Data path", value=escape(str(data_path), formatting=True), inline=False,
             )
             e.add_field(
                 name="Metadata file",
@@ -3653,8 +3651,7 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
         return msg
 
     @commands.command(
-        cls=commands.commands._IsTrueBotOwner,
-        name="sudo",
+        cls=commands.commands._IsTrueBotOwner, name="sudo",
     )
     async def sudo(self, ctx: commands.Context):
         """Enable your bot owner privileges.
@@ -3691,8 +3688,7 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
         )
 
     @commands.command(
-        cls=commands.commands._IsTrueBotOwner,
-        name="unsudo",
+        cls=commands.commands._IsTrueBotOwner, name="unsudo",
     )
     async def unsudo(self, ctx: commands.Context):
         """Disable your bot owner privileges."""
