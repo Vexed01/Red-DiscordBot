@@ -194,7 +194,7 @@ def _update_event_loop_policy():
 __version__ = "3.4.4.dev1"
 version_info = VersionInfo.from_str(__version__)
 
-vance_version = f"{__version__}/1"
+vance_version = f"{__version__}**/1**"
 
 # Filter fuzzywuzzy slow sequence matcher warning
 _warnings.filterwarnings("ignore", module=r"fuzzywuzzy.*")
