@@ -1,0 +1,5 @@
+version: "1"
+rules:
+  - base: vance
+    upstream: Cog-Creators:master
+    mergeMethod: hardreset
