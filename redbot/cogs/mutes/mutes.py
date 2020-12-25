@@ -376,7 +376,8 @@ class Mutes(VoiceMutes, commands.Cog, metaclass=CompositeMetaClass):
             )
             for reason, channel_list in reasons.items():
                 error_msg += _("{reason} In the following channels: {channels}\n").format(
-                    reason=reason, channels=humanize_list([c.mention for c in channel_list]),
+                    reason=reason,
+                    channels=humanize_list([c.mention for c in channel_list]),
                 )
             chan_id = await self.config.guild(guild).notification_channel()
             notification_channel = guild.get_channel(chan_id)
@@ -1028,7 +1029,8 @@ class Mutes(VoiceMutes, commands.Cog, metaclass=CompositeMetaClass):
 
             for reason, channel_list in reasons.items():
                 channel_msg += _("- {reason} In the following channels: {channels}\n").format(
-                    reason=reason, channels=humanize_list([c.mention for c in channel_list]),
+                    reason=reason,
+                    channels=humanize_list([c.mention for c in channel_list]),
                 )
         error_msg += reason_msg or channel_msg
         return error_msg

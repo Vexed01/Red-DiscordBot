@@ -72,7 +72,9 @@ class LavalinkSetupCommands(MixinMeta, metaclass=CompositeMetaClass):
                 title=_("Failed To Shutdown Lavalink"),
                 description=_(
                     "For it to take effect please reload Audio (`{prefix}reload audio`)."
-                ).format(prefix=ctx.prefix,),
+                ).format(
+                    prefix=ctx.prefix,
+                ),
             )
         else:
             try:

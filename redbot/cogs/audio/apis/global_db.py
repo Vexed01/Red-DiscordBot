@@ -44,7 +44,9 @@ class GlobalCacheWrapper:
         self._token = new_token
         await self.get_perms()
 
-    async def _get_api_key(self,) -> Optional[str]:
+    async def _get_api_key(
+        self,
+    ) -> Optional[str]:
         if not self._token:
             self._token = await self.bot.get_shared_api_tokens("audiodb")
         self.api_key = self._token.get("api_key", None)
