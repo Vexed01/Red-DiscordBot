@@ -78,9 +78,9 @@ def init_events(bot, cli_flags):
 
         if app_info.team:
             if bot._use_team_features:
-                bot._true_owner_ids.update(m.id for m in app_info.team.members)
+                bot.owner_ids.update(m.id for m in app_info.team.members)
         elif bot._owner_id_overwrite is None:
-            bot._true_owner_ids.add(app_info.owner.id)
+            bot.owner_ids.add(app_info.owner.id)
         bot._app_owners_fetched = True
 
         try:
@@ -201,7 +201,7 @@ def init_events(bot, cli_flags):
         if rich_outdated_message:
             bot._rich_console.print(rich_outdated_message)
 
-        if not bot._true_owner_ids:
+        if not bot.owner_ids:
             # we could possibly exit here in future
             log.warning("Bot doesn't have any owner set!")
 
