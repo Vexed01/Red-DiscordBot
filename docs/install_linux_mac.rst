@@ -457,7 +457,7 @@ Setting Up and Running Red
 
 .. note::
 
-    | If these commands don't work, try re-activating your virtual environment
+    | If these commands don't work, try re-activating your virtual environment.
     | Venv: ``deactivate`` then ``source ~/redenv/bin/activate``
     | Pyenv virtualenv: ``pyenv shell --unset`` then ``pyenv shell <name>``
 
