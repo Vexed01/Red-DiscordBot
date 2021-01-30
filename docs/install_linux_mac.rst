@@ -455,6 +455,12 @@ Or, to install with PostgreSQL support:
 Setting Up and Running Red
 --------------------------
 
+.. note::
+
+    | If these commands don't work, try re-activating your virtual environment
+    | Venv: ``deactivate`` then ``source ~/redenv/bin/activate``
+    | Pyenv virtualenv: ``pyenv shell --unset`` then ``pyenv shell <name>``
+
 After installation, set up your instance with the following command:
 
 .. code-block:: none
