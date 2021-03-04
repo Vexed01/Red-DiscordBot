@@ -3,6 +3,3 @@ rules:
   - base: vance
     upstream: Cog-Creators:V3/develop
     mergeMethod: none
-  - base: V3/develop
-    upstream: Cog-Creators:V3/develop
-    mergeMethod: merge
