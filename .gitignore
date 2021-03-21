@@ -16,6 +16,8 @@ schema
 .idea/
 *.iws
 .vscode/
+*.sublime-project
+*.sublime-workspace
 
 ## Plugin-specific files:
 
