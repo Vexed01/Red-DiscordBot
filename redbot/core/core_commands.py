@@ -413,7 +413,7 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
         modification = (
             "This instance of Red has had some of its core code "
             "modified, so it it not a completely accurate "
-            "representationof Red. See the `Vance version` above."
+            "representation of Red. See the `Vance version` above."
         )
 
         app_info = await self.bot.application_info()
