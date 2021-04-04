@@ -2,4 +2,4 @@ version: "1"
 rules:
   - base: vance
     upstream: Cog-Creators:V3/develop
-    mergeMethod: hardreset
+    mergeMethod: merge
