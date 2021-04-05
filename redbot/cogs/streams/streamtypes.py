@@ -27,7 +27,7 @@ from redbot.core.utils.chat_formatting import humanize_number, humanize_timedelt
 TWITCH_BASE_URL = "https://api.twitch.tv"
 TWITCH_ID_ENDPOINT = TWITCH_BASE_URL + "/helix/users"
 TWITCH_STREAMS_ENDPOINT = TWITCH_BASE_URL + "/helix/streams/"
-TWITCH_COMMUNITIES_ENDPOINT = TWITCH_BASE_URL + "/helix/communities"
+TWITCH_FOLLOWS_ENDPOINT = TWITCH_ID_ENDPOINT + "/follows"
 
 YOUTUBE_BASE_URL = "https://www.googleapis.com/youtube/v3"
 YOUTUBE_CHANNELS_ENDPOINT = YOUTUBE_BASE_URL + "/channels"
@@ -58,10 +58,11 @@ class Stream:
     token_name: ClassVar[Optional[str]] = None
 
     def __init__(self, **kwargs):
+        self._bot = kwargs.pop("_bot")
         self.name = kwargs.pop("name", None)
         self.channels = kwargs.pop("channels", [])
         # self.already_online = kwargs.pop("already_online", False)
-        self._messages_cache = kwargs.pop("_messages_cache", [])
+        self.messages = kwargs.pop("messages", [])
         self.type = self.__class__.__name__
 
     async def is_online(self):
@@ -70,14 +71,24 @@ class Stream:
     def make_embed(self):
         raise NotImplementedError()
 
+    def iter_messages(self):
+        for msg_data in self.messages:
+            data = msg_data.copy()
+            # "guild" key might not exist for old config data (available since GH-4742)
+            if guild_id := msg_data.get("guild"):
+                guild = self._bot.get_guild(guild_id)
+                channel = guild and guild.get_channel(msg_data["channel"])
+            else:
+                channel = self._bot.get_channel(msg_data["channel"])
+            if channel is not None:
+                data["partial_message"] = channel.get_partial_message(data["message"])
+            yield data
+
     def export(self):
         data = {}
         for k, v in self.__dict__.items():
             if not k.startswith("_"):
                 data[k] = v
-        data["messages"] = []
-        for m in self._messages_cache:
-            data["messages"].append({"channel": m.channel.id, "message": m.id})
         return data
 
     def __repr__(self):
@@ -211,17 +222,21 @@ class YoutubeStream(Stream):
                 embed.timestamp = start_time
                 is_schedule = True
             else:
-                # repost message
+                # delete the message(s) about the stream schedule
                 to_remove = []
-                for message in self._messages_cache:
-                    if message.embeds[0].description is discord.Embed.Empty:
+                for msg_data in self.iter_messages():
+                    if not msg_data.get("is_schedule", False):
                         continue
-                    with contextlib.suppress(Exception):
-                        autodelete = await self._config.guild(message.guild).autodelete()
+                    partial_msg = msg_data["partial_message"]
+                    if partial_msg is not None:
+                        autodelete = await self._config.guild(partial_msg.guild).autodelete()
                         if autodelete:
-                            await message.delete()
-                    to_remove.append(message.id)
-                self._messages_cache = [x for x in self._messages_cache if x.id not in to_remove]
+                            with contextlib.suppress(discord.NotFound):
+                                await partial_msg.delete()
+                    to_remove.append(msg_data["message"])
+                self.messages = [
+                    data for data in self.messages if data["message"] not in to_remove
+                ]
         embed.set_author(name=channel_title)
         embed.set_image(url=rnd(thumbnail))
         embed.colour = 0x9255A5
@@ -337,73 +352,59 @@ class TwitchStream(Stream):
                 return None, {}
 
     async def is_online(self):
-        if not self.id:
-            self.id = await self.fetch_id()
+        user_profile_data = None
+        if self.id is None:
+            user_profile_data = await self._fetch_user_profile()
 
-        url = TWITCH_STREAMS_ENDPOINT
-        params = {"user_id": self.id}
-
-        code, data = await self.get_data(url, params)
-        if code == 200:
-            if not data["data"]:
+        stream_code, stream_data = await self.get_data(
+            TWITCH_STREAMS_ENDPOINT, {"user_id": self.id}
+        )
+        if stream_code == 200:
+            if not stream_data["data"]:
                 raise OfflineStream()
-            self.name = data["data"][0]["user_name"]
-            data = data["data"][0]
-            data["game_name"] = None
-            data["followers"] = None
-            data["view_count"] = None
-            data["profile_image_url"] = None
-            data["login"] = None
 
-            game_id = data["game_id"]
-            if game_id:
-                __, game_data = await self.get_data(
-                    "https://api.twitch.tv/helix/games", {"id": game_id}
-                )
-                if game_data:
-                    game_data = game_data["data"][0]
-                    data["game_name"] = game_data["name"]
-            __, user_data = await self.get_data(
-                "https://api.twitch.tv/helix/users/follows", {"to_id": self.id}
+            if user_profile_data is None:
+                user_profile_data = await self._fetch_user_profile()
+
+            final_data = dict.fromkeys(
+                ("game_name", "followers", "login", "profile_image_url", "view_count")
             )
-            if user_data:
-                followers = user_data["total"]
-                data["followers"] = followers
 
-            __, user_profile_data = await self.get_data(
-                "https://api.twitch.tv/helix/users", {"id": self.id}
-            )
-            if user_profile_data:
-                profile_image_url = user_profile_data["data"][0]["profile_image_url"]
-                data["profile_image_url"] = profile_image_url
-                data["view_count"] = user_profile_data["data"][0]["view_count"]
-                data["login"] = user_profile_data["data"][0]["login"]
+            if user_profile_data is not None:
+                final_data["login"] = user_profile_data["login"]
+                final_data["profile_image_url"] = user_profile_data["profile_image_url"]
+                final_data["view_count"] = user_profile_data["view_count"]
 
-            is_rerun = False
-            return self.make_embed(data), is_rerun
-        elif code == 400:
+            stream_data = stream_data["data"][0]
+            final_data["user_name"] = self.name = stream_data["user_name"]
+            final_data["game_name"] = stream_data["game_name"]
+            final_data["thumbnail_url"] = stream_data["thumbnail_url"]
+            final_data["title"] = stream_data["title"]
+            final_data["type"] = stream_data["type"]
+
+            __, follows_data = await self.get_data(TWITCH_FOLLOWS_ENDPOINT, {"to_id": self.id})
+            if follows_data:
+                final_data["followers"] = follows_data["total"]
+
+            return self.make_embed(final_data), final_data["type"] == "rerun"
+        elif stream_code == 400:
             raise InvalidTwitchCredentials()
-        elif code == 404:
+        elif stream_code == 404:
             raise StreamNotFound()
         else:
-            raise APIError(data)
+            raise APIError(stream_data)
 
-    async def fetch_id(self):
-        header = {"Client-ID": str(self._client_id)}
-        if self._bearer is not None:
-            header = {**header, "Authorization": f"Bearer {self._bearer}"}
-        url = TWITCH_ID_ENDPOINT
-        params = {"login": self.name}
-
-        status, data = await self.get_data(url, params)
-
-        if status == 200:
+    async def _fetch_user_profile(self):
+        code, data = await self.get_data(TWITCH_ID_ENDPOINT, {"login": self.name})
+        if code == 200:
             if not data["data"]:
                 raise StreamNotFound()
-            return data["data"][0]["id"]
-        elif status == 400:
+            if self.id is None:
+                self.id = data["data"][0]["id"]
+            return data["data"][0]
+        elif code == 400:
             raise StreamNotFound()
-        elif status == 401:
+        elif code == 401:
             raise InvalidTwitchCredentials()
         else:
             raise APIError(data)
