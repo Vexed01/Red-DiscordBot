@@ -259,9 +259,12 @@ def init_events(bot, cli_flags):
                 "Exception in command '{}'".format(ctx.command.qualified_name),
                 exc_info=error.original,
             )
-            msg = "I ran into a problem with `{}`. This has been logged.\nError timestamp: `{}`.".format(
-                ctx.command.qualified_name, (datetime.now()).strftime("%y-%m-%d %H:%M:%S")
+            msg = (
+                f"I ran into a problem with `{ctx.command.qualified_name}`. This has been logged.\n"
+                f"Error timestamp: `{datetime.now().strftime('%y-%m-%d %H:%M:%S')}`."
             )
+            if ctx.author.id in bot.owner_ids:
+                msg += f"\n\nIt looks like you're my owner. Here's the error: ```py\n{error.original}\n```"
             await ctx.send(msg)
 
             exception_log = "Exception in command '{}'\n" "".format(ctx.command.qualified_name)
