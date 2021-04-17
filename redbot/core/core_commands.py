@@ -30,6 +30,7 @@ from redbot.core.utils.chat_formatting import box, pagify
 from . import (
     __version__,
     version_info as red_version_info,
+    vance_version,
     checks,
     commands,
     errors,
@@ -411,12 +412,18 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
         author_repo = "https://github.com/Twentysix26"
         org_repo = "https://github.com/Cog-Creators"
         red_repo = org_repo + "/Red-DiscordBot"
+        vance_repo = "https://github.com/Vexed01/Red-DiscordBot/tree/vance"
         red_pypi = "https://pypi.org/project/Red-DiscordBot"
         support_server_url = "https://discord.gg/red"
         dpy_repo = "https://github.com/Rapptz/discord.py"
         python_url = "https://www.python.org/"
         since = datetime.datetime(2016, 1, 2, 0, 0)
         days_since = (datetime.datetime.utcnow() - since).days
+        modification = (
+            "This instance of Red has had some of its core code "
+            "modified, so it it not a completely accurate "
+            "representation of Red. See the `Vance version` above."
+        )
 
         app_info = await self.bot.application_info()
         if app_info.team:
@@ -432,6 +439,7 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
             dpy_version = "[{}]({})".format(discord.__version__, dpy_repo)
             python_version = "[{}.{}.{}]({})".format(*sys.version_info[:3], python_url)
             red_version = "[{}]({})".format(__version__, red_pypi)
+            vanceversion = "[{}]({})".format(vance_version, vance_repo)
 
             about = _(
                 "This bot is an instance of [Red, an open source Discord bot]({}) "
@@ -450,17 +458,11 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
             embed.add_field(name="Python", value=python_version)
             embed.add_field(name="discord.py", value=dpy_version)
             embed.add_field(name=_("Red version"), value=red_version)
-            if outdated in (True, None):
-                if outdated is True:
-                    outdated_value = _("Yes, {version} is available.").format(
-                        version=str(pypi_version)
-                    )
-                else:
-                    outdated_value = _("Checking for updates failed.")
-                embed.add_field(name=_("Outdated"), value=outdated_value)
+            embed.add_field(name="Vance version", value=vanceversion)
             if custom_info:
                 embed.add_field(name=_("About this instance"), value=custom_info, inline=False)
             embed.add_field(name=_("About Red"), value=about, inline=False)
+            embed.add_field(name="Modification", value=modification, inline=False)
 
             embed.set_footer(
                 text=_("Bringing joy since 02 Jan 2016 (over {} days ago!)").format(days_since)
@@ -487,6 +489,7 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
                     "Python:                 [{python_version}] (5)\n"
                     "discord.py:             [{dpy_version}] (6)\n"
                     "Red version:            [{red_version}] (7)\n"
+                    "Vance version:          [{vance_version}] (8)\n"
                 ).format(
                     owner=owner,
                     python_version=python_version,
@@ -499,6 +502,7 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
                     "Python:            [{python_version}] (5)\n"
                     "discord.py:        [{dpy_version}] (6)\n"
                     "Red version:       [{red_version}] (7)\n"
+                    "Vance version:     [{vance_version}] (8)\n"
                 ).format(
                     owner=owner,
                     python_version=python_version,
@@ -518,6 +522,8 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
             red = (
                 _("**About Red**\n")
                 + about
+                + "**Modification**\n"
+                + modification
                 + "\n"
                 + box(extras, lang="ini")
                 + "\n"
@@ -538,8 +544,16 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
                 "5. <{}>\n"
                 "6. <{}>\n"
                 "7. <{}>\n"
+                "8. <{}>\n"
             ).format(
-                red_repo, author_repo, org_repo, support_server_url, python_url, dpy_repo, red_pypi
+                red_repo,
+                author_repo,
+                org_repo,
+                support_server_url,
+                python_url,
+                dpy_repo,
+                red_pypi,
+                vance_repo,
             )
             await ctx.send(refs)
 
@@ -548,9 +562,9 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
         """Shows [botname]'s uptime."""
         since = ctx.bot.uptime.strftime("%Y-%m-%d %H:%M:%S")
         delta = datetime.datetime.utcnow() - self.bot.uptime
-        uptime_str = humanize_timedelta(timedelta=delta) or _("Less than one second")
+        uptime_str = humanize_timedelta(timedelta=delta) or _("Less than one second.")
         await ctx.send(
-            _("Been up for: **{time_quantity}** (since {timestamp} UTC)").format(
+            _("Been up for: **{time_quantity}** (since {timestamp} UTC).").format(
                 time_quantity=uptime_str, timestamp=since
             )
         )
@@ -1941,7 +1955,7 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
         skin = "\N{EMOJI MODIFIER FITZPATRICK TYPE-3}"
         with contextlib.suppress(discord.HTTPException):
             if not silently:
-                await ctx.send(_("Shutting down... ") + wave + skin)
+                await ctx.maybe_send_embed(_("Shutting down! ") + wave + skin)
         await ctx.bot.shutdown()
 
     @commands.command(name="restart")
@@ -1959,9 +1973,11 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
         **Arguments:**
             - `[silently]` - Whether to skip sending the restart message. Defaults to False.
         """
+        wave = "\N{WAVING HAND SIGN}"
+        skin = "\N{EMOJI MODIFIER FITZPATRICK TYPE-3}"
         with contextlib.suppress(discord.HTTPException):
             if not silently:
-                await ctx.send(_("Restarting..."))
+                await ctx.maybe_send_embed(_("Restarting! See you soon " + wave + skin))
         await ctx.bot.shutdown(restart=True)
 
     @commands.group(name="set")
@@ -4809,7 +4825,7 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
     )
     async def license_info_command(self, ctx):
         """
-        Get info about Red's licenses.
+        Get info about Red's licenses
         """
 
         message = (

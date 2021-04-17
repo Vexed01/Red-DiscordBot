@@ -21,7 +21,12 @@ from redbot.core.i18n import (
     set_contextual_locales_from_guild,
 )
 from .utils import AsyncIter
-from .. import __version__ as red_version, version_info as red_version_info, VersionInfo
+from .. import (
+    __version__ as red_version,
+    version_info as red_version_info,
+    vance_version,
+    VersionInfo,
+)
 from . import commands
 from .config import get_latest_confs
 from .utils._internal_utils import (
@@ -93,6 +98,7 @@ def init_events(bot, cli_flags):
         table_general_info.add_row("Prefixes", ", ".join(prefixes))
         table_general_info.add_row("Language", lang)
         table_general_info.add_row("Red version", red_version)
+        table_general_info.add_row("Vance version", vance_version)
         table_general_info.add_row("Discord.py version", dpy_version)
         table_general_info.add_row("Storage type", data_manager.storage_type())
 
@@ -253,16 +259,16 @@ def init_events(bot, cli_flags):
                 "Exception in command '{}'".format(ctx.command.qualified_name),
                 exc_info=error.original,
             )
+            msg = "I ran into a problem with `{}`. This has been logged.\nError timestamp: `{}`.".format(
+                ctx.command.qualified_name, (datetime.now()).strftime("%y-%m-%d %H:%M:%S")
+            )
+            await ctx.send(msg)
 
-            message = _(
-                "Error in command '{command}'. Check your console or logs for details."
-            ).format(command=ctx.command.qualified_name)
             exception_log = "Exception in command '{}'\n" "".format(ctx.command.qualified_name)
             exception_log += "".join(
                 traceback.format_exception(type(error), error, error.__traceback__)
             )
             bot._last_exception = exception_log
-            await ctx.send(inline(message))
         elif isinstance(error, commands.CommandNotFound):
             help_settings = await HelpSettings.from_context(ctx)
             fuzzy_commands = await fuzzy_command_search(

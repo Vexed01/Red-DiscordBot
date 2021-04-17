@@ -1,6 +1,6 @@
 import discord as _discord
 
-from .. import __version__, version_info, VersionInfo
+from .. import __version__, version_info, VersionInfo, vance_version
 from .config import Config
 from .utils.safety import warn_unsafe as _warn_unsafe
 

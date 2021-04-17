@@ -446,6 +446,7 @@ class Economy(commands.Cog):
         """
         author = ctx.author
         guild = ctx.guild
+        guildid = ctx.guild.id
 
         cur_time = calendar.timegm(ctx.message.created_at.utctimetuple())
         credits_name = await bank.get_currency_name(ctx.guild)
@@ -474,18 +475,24 @@ class Economy(commands.Cog):
                 await self.config.user(author).next_payday.set(cur_time)
 
                 pos = await bank.get_leaderboard_position(author)
-                await ctx.send(
+                await ctx.maybe_send_embed(
                     _(
-                        "{author.mention} Here, take some {currency}. "
-                        "Enjoy! (+{amount} {currency}!)\n\n"
-                        "You currently have {new_balance} {currency}.\n\n"
-                        "You are currently #{pos} on the global leaderboard!"
+                        "Here, take some {currency} {author.name}:\n\n"
+                        "You've got **{amount} more {currency}**!\n\n"
+                        "You now have **{new_balance} {currency}**.\n\n"
+                        "You are currently **#{pos}** on the global leaderboard!"
+                        "{extra}"
                     ).format(
                         author=author,
                         currency=credits_name,
                         amount=humanize_number(await self.config.PAYDAY_CREDITS()),
                         new_balance=humanize_number(await bank.get_balance(author)),
                         pos=humanize_number(pos) if pos else pos,
+                        extra=(
+                            "\nThanks for using Vance's economy, though you probably didn't mean to!"
+                            if ctx.guild.id == 133049272517001216 and ctx.clean_prefix == "!"
+                            else ""
+                        ),
                     )
                 )
 
@@ -531,18 +538,24 @@ class Economy(commands.Cog):
 
                 await self.config.member(author).next_payday.set(next_payday)
                 pos = await bank.get_leaderboard_position(author)
-                await ctx.send(
+                await ctx.maybe_send_embed(
                     _(
-                        "{author.mention} Here, take some {currency}. "
-                        "Enjoy! (+{amount} {currency}!)\n\n"
-                        "You currently have {new_balance} {currency}.\n\n"
-                        "You are currently #{pos} on the global leaderboard!"
+                        "Here, take some {currency} {author.name}:\n\n"
+                        "You've got **{amount} more {currency}**!\n\n"
+                        "You now have **{new_balance} {currency}**.\n\n"
+                        "You are currently **#{pos}** on the global leaderboard!"
+                        "{extra}"
                     ).format(
                         author=author,
                         currency=credits_name,
-                        amount=humanize_number(credit_amount),
+                        amount=humanize_number(await self.config.PAYDAY_CREDITS()),
                         new_balance=humanize_number(await bank.get_balance(author)),
                         pos=humanize_number(pos) if pos else pos,
+                        extra=(
+                            "\n\nThanks for using Vance's economy, though you probably didn't mean to!"
+                            if ctx.guild.id == 133049272517001216 and ctx.clean_prefix == "!"
+                            else ""
+                        ),
                     )
                 )
             else:
