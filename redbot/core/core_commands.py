@@ -402,6 +402,11 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
         """Pong."""
         await ctx.send("Pong.")
 
+    @commands.command(name="vanceversion")
+    async def com_vanceversion(self, ctx: commands.Context):
+        """Get the version of Vance's modification."""
+        await ctx.send(f"I'm running {__version__}/**{vance_version}**")
+
     @commands.command()
     async def info(self, ctx: commands.Context):
         """Shows info about [botname].
