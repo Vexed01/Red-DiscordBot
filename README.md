@@ -32,7 +32,7 @@
   <a href="http://red-discordbot.readthedocs.io/en/stable/?badge=stable">
     <img src="https://readthedocs.org/projects/red-discordbot/badge/?version=stable" alt="Red on readthedocs.org">
   </a>
-  <a href="https://github.com/ambv/black">
+  <a href="https://github.com/psf/black">
     <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Code Style: Black">
   </a>
   <a href="http://makeapullrequest.com">
@@ -131,4 +131,4 @@ Artwork created by [Sinlaire](https://sinlaire.deviantart.com/) on Deviant Art f
 Bot Project.
 
 This project vendors [discord.ext.menus](https://github.com/Rapptz/discord-ext-menus) package made by Danny Y. (Rapptz) which is distributed under MIT License.
-Copy of this license can be found in [discord-ext-menus.LICENSE](redbot/vendored/discord-ext-menus.LICENSE) file in [redbot/vendored](redbot/vendored) folder of this repository.
+A copy of this license can be found in the [discord-ext-menus.LICENSE](redbot/vendored/discord-ext-menus.LICENSE) file in the [redbot/vendored](redbot/vendored) folder of this repository.
