@@ -532,24 +532,22 @@ class PlaylistUtilities(MixinMeta, metaclass=CompositeMetaClass):
                 return False
             try:
                 if (
-                    not ctx.author.voice.channel.permissions_for(ctx.me).connect
+                    not self.can_join_and_speak(ctx.author.voice.channel)
                     or not ctx.author.voice.channel.permissions_for(ctx.me).move_members
                     and self.is_vc_full(ctx.author.voice.channel)
                 ):
                     await self.send_embed_msg(
                         ctx,
                         title=_("Unable To Get Playlists"),
-                        description=_("I don't have permission to connect to your channel."),
+                        description=_(
+                            "I don't have permission to connect and speak in your channel."
+                        ),
                     )
                     return False
                 await lavalink.connect(
                     ctx.author.voice.channel,
                     deafen=await self.config.guild_from_id(ctx.guild.id).auto_deafen(),
                 )
-                player = lavalink.get_player(ctx.guild.id)
-                player.store("connect", datetime.datetime.utcnow())
-                player.store("channel", ctx.channel.id)
-                player.store("guild", ctx.guild.id)
             except IndexError:
                 await self.send_embed_msg(
                     ctx,
@@ -564,10 +562,8 @@ class PlaylistUtilities(MixinMeta, metaclass=CompositeMetaClass):
                     description=_("Connect to a voice channel first."),
                 )
                 return False
-
         player = lavalink.get_player(ctx.guild.id)
-        player.store("channel", ctx.channel.id)
-        player.store("guild", ctx.guild.id)
+        player.store("notify_channel", ctx.channel.id)
         if (
             not ctx.author.voice or ctx.author.voice.channel != player.channel
         ) and not await self._can_instaskip(ctx, ctx.author):
