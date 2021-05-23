@@ -506,7 +506,7 @@ class Admin(commands.Cog):
     @commands.Cog.listener()
     async def on_guild_join(self, guild: discord.Guild):
         if await self.config.serverlocked():
-            if len(self.bot.guilds) == 1:
+            if len(self.bot.guilds) == 1:  # will be 0 once left
                 log.warning(
                     f"Leaving guild ID {guild.id} due to serverlock. You can temporality disbale "
                     "serverlock by starting up the bot with the --no-cogs flag."
