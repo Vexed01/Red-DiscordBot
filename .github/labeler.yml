@@ -143,6 +143,7 @@
   # Source
   - redbot/cogs/permissions/*
   # Docs
+  - docs/cog_guides/permissions.rst
   - docs/cog_permissions.rst
 "Category: Reports Cog":
   # Source
@@ -167,6 +168,7 @@
   - redbot/cogs/trivia/*
   # Docs
   - docs/cog_guides/trivia.rst
+  - docs/guide_trivia_list_creation.rst
 "Category: Trivia Lists":
   - redbot/cogs/trivia/data/lists/*
 "Category: Utility Functions":
@@ -175,4 +177,7 @@
   # Docs
   - docs/framework_utils.rst
 "Category: Warnings":
+  # Source
   - redbot/cogs/warnings/*
+  # Docs
+  - docs/cog_guides/warnings.rst
