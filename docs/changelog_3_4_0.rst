@@ -1,5 +1,38 @@
 .. 3.4.x Changelogs
 
+Redbot 3.4.14 (2021-09-23)
+==========================
+
+| Thanks to all these amazing people that contributed to this release:
+| :ghuser:`aikaterna`, :ghuser:`jack1142`, :ghuser:`Kowlin`, :ghuser:`L33Tech`, :ghuser:`maxbooiii`, :ghuser:`RheingoldRiver`
+
+Read before updating
+--------------------
+
+#. Versions of RHEL older than 8.4 (including 7) and versions of CentOS older than 8.4 (excluding 7) are no longer supported.
+#. Information for Audio users that are using an external Lavalink instance (if you don't know what that is, you should skip this point):
+
+    Red 3.4.14 uses a new Lavalink jar that you will need to manually update from `our GitHub <https://github.com/Cog-Creators/Lavalink-Jars/releases/tag/3.3.2.3_1239>`__.
+
+
+End-user changelog
+------------------
+
+- **Core Bot** - Added the new native Discord timestamp in the ``[p]uptime`` command (:issue:`5323`)
+- **Core Bot** - ``redbot-setup delete`` command no longer requires database connection if the data deletion was not requested (:issue:`5312`, :issue:`5313`)
+- **Audio** - Fixed intermittent 403 Forbidden errors (:issue:`5329`)
+- **Modlog** - Fixed formatting of **Last modified at** field in Modlog cases (:issue:`5317`)
+
+
+Documentation changes
+---------------------
+
+- Each operating system now has a dedicated install guide (:issue:`5328`)
+- Fixed Raspberry Pi OS install guide (:issue:`5314`, :issue:`5328`)
+- Added install guide for CentOS Stream 8, Oracle Linux 8.4-8.x, and Rocky Linux 8 (:issue:`5328`)
+- Install guides for RHEL derivatives no longer require the use of pyenv (:issue:`5328`)
+
+
 Redbot 3.4.13 (2021-09-09)
 ==========================
 
@@ -120,14 +153,14 @@ Developer changelog
 
     Here's the list of the methods that were added to the ``bot`` object:
 
-        - `Red.add_to_blacklist() <RedBase.add_to_blacklist()>`
-        - `Red.remove_from_blacklist() <RedBase.remove_from_blacklist()>`
-        - `Red.get_blacklist() <RedBase.get_blacklist()>`
-        - `Red.clear_blacklist() <RedBase.clear_blacklist()>`
-        - `Red.add_to_whitelist() <RedBase.add_to_whitelist()>`
-        - `Red.remove_from_whitelist() <RedBase.remove_from_whitelist()>`
-        - `Red.get_whitelist() <RedBase.get_whitelist()>`
-        - `Red.clear_whitelist() <RedBase.clear_whitelist()>`
+        - `Red.add_to_blacklist()`
+        - `Red.remove_from_blacklist()`
+        - `Red.get_blacklist()`
+        - `Red.clear_blacklist()`
+        - `Red.add_to_whitelist()`
+        - `Red.remove_from_whitelist()`
+        - `Red.get_whitelist()`
+        - `Red.clear_whitelist()`
 
 - Added `CommandConverter` and `CogConverter` to the ``redbot.core.commands`` package (:issue:`5037`)
 
@@ -446,7 +479,7 @@ Developer changelog
 - Deprecated importing ``GuildConverter`` from ``redbot.core.commands.converter`` namespace (:issue:`4928`)
 
     - ``discord.Guild`` or ``GuildConverter`` from ``redbot.core.commands`` should be used instead
-- Added ``guild`` parameter to `bot.allowed_by_whitelist_blacklist() <RedBase.allowed_by_whitelist_blacklist()>` which is meant to replace the deprecated ``guild_id`` parameter (:issue:`4905`, :issue:`4914`)
+- Added ``guild`` parameter to `bot.allowed_by_whitelist_blacklist() <Red.allowed_by_whitelist_blacklist()>` which is meant to replace the deprecated ``guild_id`` parameter (:issue:`4905`, :issue:`4914`)
 
     - Read the method's documentation for more information
 - Fixed ``on_red_api_tokens_update`` not being dispatched when the tokens were removed with ``[p]set api remove`` (:issue:`4916`, :issue:`4917`)
@@ -642,8 +675,8 @@ Dev Cog
 
     - Variables can be added and removed from the environment of Dev cog using two new methods:
 
-        - `bot.add_dev_env_value() <RedBase.add_dev_env_value()>`
-        - `bot.remove_dev_env_value() <RedBase.remove_dev_env_value()>`
+        - `bot.add_dev_env_value() <Red.add_dev_env_value()>`
+        - `bot.remove_dev_env_value() <Red.remove_dev_env_value()>`
 
 
 Documentation changes
@@ -653,7 +686,7 @@ Documentation changes
 - Added information about the Red Index to `guide_publish_cogs` (:issue:`4778`)
 - Restructured the host list (:issue:`4710`)
 - Clarified how to use pm2 with ``pyenv virtualenv`` (:issue:`4709`)
-- Updated the pip command for Red with the postgres extra in `install_linux_mac` document to work on zsh shell (:issue:`4697`)
+- Updated the pip command for Red with the postgres extra in Linux/macOS install guide to work on zsh shell (:issue:`4697`)
 - Updated Python version in ``pyenv`` and Windows instructions (:issue:`4770`)
 
 
@@ -873,7 +906,7 @@ Documentation changes
 ---------------------
 
 - Added `cog guide for Cleanup cog <cleanup>` (:issue:`4488`)
-- Removed multi-line commands from `install_linux_mac` to avoid confusing readers (:issue:`4550`)
+- Removed multi-line commands from Linux install guides to avoid confusing readers (:issue:`4550`)
 
 
 Redbot 3.4.1 (2020-10-27)
@@ -1034,9 +1067,9 @@ Core Bot
     - New function added: `redbot.core.i18n.set_contextual_locales_from_guild()`
     - Contextual locale is automatically set for commands and only needs to be done manually for things like event listeners; see `recommendations-for-cog-creators` for more information
 
-- Added `bot.remove_shared_api_services() <RedBase.remove_shared_api_services()>` to remove all keys and tokens associated with an API service (:issue:`4370`)
-- Added an option to return all tokens for an API service if ``service_name`` is not specified in `bot.get_shared_api_tokens() <RedBase.get_shared_api_tokens()>` (:issue:`4370`)
-- Added `bot.get_or_fetch_user() <RedBase.get_or_fetch_user()>` and `bot.get_or_fetch_member() <RedBase.get_or_fetch_member()>` methods (:issue:`4403`, :issue:`4402`)
+- Added `bot.remove_shared_api_services() <Red.remove_shared_api_services()>` to remove all keys and tokens associated with an API service (:issue:`4370`)
+- Added an option to return all tokens for an API service if ``service_name`` is not specified in `bot.get_shared_api_tokens() <Red.get_shared_api_tokens()>` (:issue:`4370`)
+- Added `bot.get_or_fetch_user() <Red.get_or_fetch_user()>` and `bot.get_or_fetch_member() <Red.get_or_fetch_member()>` methods (:issue:`4403`, :issue:`4402`)
 - Moved ``redbot.core.checks.bot_in_a_guild()`` to `redbot.core.commands.bot_in_a_guild()` (old name has been left as an alias) (:issue:`4515`, :issue:`4510`)
 
 Bank
@@ -1199,7 +1232,7 @@ Core Bot
 
 - Added cog disabling API (:issue:`4043`, :issue:`3945`)
 
-    - New methods added: `bot.cog_disabled_in_guild() <RedBase.cog_disabled_in_guild()>`, `bot.cog_disabled_in_guild_raw() <RedBase.cog_disabled_in_guild_raw()>`
+    - New methods added: `bot.cog_disabled_in_guild() <Red.cog_disabled_in_guild()>`, `bot.cog_disabled_in_guild_raw() <Red.cog_disabled_in_guild_raw()>`
     - Cog disabling is automatically applied for commands and only needs to be done manually for things like event listeners; see `recommendations-for-cog-creators` for more information
 
 - Added data request API (:issue:`4045`,  :issue:`4169`)
@@ -1209,9 +1242,9 @@ Core Bot
     - These methods and variables should be added by all cogs according to their documentation; see `recommendations-for-cog-creators` for more information
     - New ``info.json`` key added: ``end_user_data_statement``; see `Info.json format documentation <info-json-format>` for more information
 
-- Added `bot.message_eligible_as_command() <RedBase.message_eligible_as_command()>` utility method which can be used to determine if a message may be responded to as a command (:issue:`4077`)
+- Added `bot.message_eligible_as_command() <Red.message_eligible_as_command()>` utility method which can be used to determine if a message may be responded to as a command (:issue:`4077`)
 - Added a provisional API for replacing the help formatter. See `documentation <framework-commands-help>` for more details (:issue:`4011`)
-- `bot.ignored_channel_or_guild() <RedBase.ignored_channel_or_guild()>` now accepts `discord.Message` objects (:issue:`4077`)
+- `bot.ignored_channel_or_guild() <Red.ignored_channel_or_guild()>` now accepts `discord.Message` objects (:issue:`4077`)
 - `commands.NoParseOptional <NoParseOptional>` is no longer provisional and is now fully supported part of API (:issue:`4142`)
 - Red no longer fails to run subcommands of a command group allowed or denied by permission hook (:issue:`3956`)
 - Autohelp in group commands is now sent *after* invoking the group, which allows before invoke hooks to prevent autohelp from getting triggered (:issue:`4129`)

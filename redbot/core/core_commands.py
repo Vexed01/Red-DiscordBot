@@ -1,46 +1,41 @@
 import asyncio
 import contextlib
 import datetime
+import getpass
 import importlib
+import io
 import itertools
 import keyword
 import logging
-import io
-import random
-import markdown
 import os
+import platform
+import random
 import re
 import sys
-import platform
-import psutil
-import getpass
-import pip
 import traceback
 from pathlib import Path
-from redbot.core import data_manager
-from redbot.core.utils.menus import menu, DEFAULT_CONTROLS
-from redbot.core.commands import GuildConverter
 from string import ascii_letters, digits
-from typing import TYPE_CHECKING, Union, Tuple, List, Optional, Iterable, Sequence, Dict, Set
+from typing import TYPE_CHECKING, Dict, Iterable, List, Optional, Sequence, Set, Tuple, Union
 
 import aiohttp
 import discord
-from babel import Locale as BabelLocale, UnknownLocaleError
+import markdown
+import pip
+import psutil
+from babel import Locale as BabelLocale
+from babel import UnknownLocaleError
+from redbot.core import data_manager
+from redbot.core.commands import GuildConverter
 from redbot.core.data_manager import storage_type
+from redbot.core.utils.menus import DEFAULT_CONTROLS, menu
 
-from . import (
-    __version__,
-    version_info as red_version_info,
-    vance_version,
-    checks,
-    commands,
-    errors,
-    i18n,
-)
+from . import __version__, checks, commands, errors, i18n, vance_version
+from . import version_info as red_version_info
 from ._diagnoser import IssueDiagnoser
+from .commands import CogConverter, CommandConverter
+from .commands.requires import PrivilegeLevel
 from .utils import AsyncIter
 from .utils._internal_utils import fetch_latest_red_version_info
-from .utils.predicates import MessagePredicate
 from .utils.chat_formatting import (
     box,
     escape,
@@ -50,8 +45,7 @@ from .utils.chat_formatting import (
     inline,
     pagify,
 )
-from .commands import CommandConverter, CogConverter
-from .commands.requires import PrivilegeLevel
+from .utils.predicates import MessagePredicate
 
 _entities = {
     "*": "&midast;",
@@ -577,12 +571,12 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
     @commands.command()
     async def uptime(self, ctx: commands.Context):
         """Shows [botname]'s uptime."""
-        since = ctx.bot.uptime.strftime("%Y-%m-%d %H:%M:%S")
         delta = datetime.datetime.utcnow() - self.bot.uptime
+        uptime = self.bot.uptime.replace(tzinfo=datetime.timezone.utc)
         uptime_str = humanize_timedelta(timedelta=delta) or _("Less than one second.")
         await ctx.send(
-            _("Been up for: **{time_quantity}** (since {timestamp} UTC).").format(
-                time_quantity=uptime_str, timestamp=since
+            _("Been up for: **{time_quantity}** (since {timestamp})").format(
+                time_quantity=uptime_str, timestamp=f"<t:{int(uptime.timestamp())}:f>"
             )
         )
 
@@ -1488,6 +1482,8 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
                         "Either you blocked me or you disabled DMs in this server."
                     )
                     return
+            if not public:
+                await ctx.tick()
         else:
             await ctx.send(_("No exception has occurred yet."))
 
@@ -1624,12 +1620,12 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
             guilds = (ctx.guild,)
             msg = (
                 _("You haven't passed any server ID. Do you want me to leave this server?")
-                + " (y/n)"
+                + " (yes/no)"
             )
         else:
             msg = (
                 _("Are you sure you want me to leave these servers?")
-                + " (y/n):\n"
+                + " (yes/no):\n"
                 + "\n".join(f"- {guild.name} (`{guild.id}`)" for guild in guilds)
             )
 
@@ -2709,8 +2705,9 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
             await ctx.send(
                 _(
                     "Warning: A prefix is above the recommended length (20 characters).\n"
-                    "Do you want to continue? (y/n)"
+                    "Do you want to continue?"
                 )
+                + " (yes/no)"
             )
             pred = MessagePredicate.yes_or_no(ctx)
             try:
@@ -3176,9 +3173,9 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
             show_aliases = not await ctx.bot._config.help.show_aliases()
         await ctx.bot._config.help.show_aliases.set(show_aliases)
         if show_aliases:
-            await ctx.send(_("Help will show commands aliases."))
+            await ctx.send(_("Help will now show command aliases."))
         else:
-            await ctx.send(_("Help will not show commands aliases."))
+            await ctx.send(_("Help will no longer show command aliases."))
 
     @helpset.command(name="usetick")
     async def helpset_usetick(self, ctx: commands.Context, use_tick: bool = None):
