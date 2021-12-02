@@ -29,7 +29,7 @@ from redbot.core.commands import GuildConverter, RawUserIdConverter
 from redbot.core.data_manager import storage_type
 from redbot.core.utils.menus import DEFAULT_CONTROLS, menu
 
-from . import __version__, bank, checks, commands, errors, i18n, modlog
+from . import __version__, bank, checks, commands, errors, i18n, modlog, vance_version
 from . import version_info as red_version_info
 from ._diagnoser import IssueDiagnoser
 from .commands import CogConverter, CommandConverter
