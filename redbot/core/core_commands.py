@@ -95,7 +95,7 @@ _ = i18n.Translator("Core", __file__)
 
 TokenConverter = commands.get_dict_converter(delims=[" ", ",", ";"])
 
-MAX_PREFIX_LENGTH = 20
+MAX_PREFIX_LENGTH = 25
 
 
 class CoreLogic:
@@ -400,7 +400,7 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
     """
 
     async def red_delete_data_for_user(self, **kwargs):
-        """ Nothing to delete (Core Config is handled in a bot method ) """
+        """Nothing to delete (Core Config is handled in a bot method)"""
         return
 
     @commands.command(hidden=True)
@@ -1612,6 +1612,7 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
             return await ctx.send(_("You need to specify at least one server ID."))
 
         leaving_local_guild = not guilds
+        number = len(guilds)
 
         if leaving_local_guild:
             guilds = (ctx.guild,)
@@ -1620,11 +1621,18 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
                 + " (yes/no)"
             )
         else:
-            msg = (
-                _("Are you sure you want me to leave these servers?")
-                + " (yes/no):\n"
-                + "\n".join(f"- {guild.name} (`{guild.id}`)" for guild in guilds)
-            )
+            if number > 1:
+                msg = (
+                    _("Are you sure you want me to leave these servers?")
+                    + " (yes/no):\n"
+                    + "\n".join(f"- {guild.name} (`{guild.id}`)" for guild in guilds)
+                )
+            else:
+                msg = (
+                    _("Are you sure you want me to leave this server?")
+                    + " (yes/no):\n"
+                    + f"- {guilds[0].name} (`{guilds[0].id}`)"
+                )
 
         for guild in guilds:
             if guild.owner.id == ctx.me.id:
@@ -1647,9 +1655,12 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
                 if leaving_local_guild is True:
                     await ctx.send(_("Alright. Bye :wave:"))
                 else:
-                    await ctx.send(
-                        _("Alright. Leaving {number} servers...").format(number=len(guilds))
-                    )
+                    if number > 1:
+                        await ctx.send(
+                            _("Alright. Leaving {number} servers...").format(number=number)
+                        )
+                    else:
+                        await ctx.send(_("Alright. Leaving one server..."))
                 for guild in guilds:
                     log.debug("Leaving guild '%s' (%s)", guild.name, guild.id)
                     await guild.leave()
@@ -1657,7 +1668,10 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
                 if leaving_local_guild is True:
                     await ctx.send(_("Alright, I'll stay then. :)"))
                 else:
-                    await ctx.send(_("Alright, I'm not leaving those servers."))
+                    if number > 1:
+                        await ctx.send(_("Alright, I'm not leaving those servers."))
+                    else:
+                        await ctx.send(_("Alright, I'm not leaving that server."))
 
     @commands.command()
     @checks.is_owner()
@@ -3137,7 +3151,7 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
         Note: API tokens are sensitive, so this command should only be used in a private channel or in DM with the bot.
 
         **Examples:**
-            - `[p]set api Spotify redirect_uri localhost`
+            - `[p]set api spotify redirect_uri localhost`
             - `[p]set api github client_id,whoops client_secret,whoops`
 
         **Arguments:**
@@ -3181,8 +3195,8 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
         Remove the given services with all their keys and tokens.
 
         **Examples:**
-            - `[p]set api remove Spotify`
-            - `[p]set api remove github audiodb`
+            - `[p]set api remove spotify`
+            - `[p]set api remove github youtube`
 
         **Arguments:**
             - `<services...>` - The services to remove."""
@@ -3558,7 +3572,7 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
         if any(len(x) > MAX_PREFIX_LENGTH for x in prefixes):
             await ctx.send(
                 _(
-                    "Warning: A prefix is above the recommended length (20 characters).\n"
+                    "Warning: A prefix is above the recommended length (25 characters).\n"
                     "Do you want to continue?"
                 )
                 + " (yes/no)"
@@ -3588,7 +3602,7 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
 
         Warning: This will override global prefixes, the bot will not respond to any global prefixes in this server.
             This is not additive. It will replace all current server prefixes.
-            A prefix cannot have more than 20 characters.
+            A prefix cannot have more than 25 characters.
 
         **Examples:**
             - `[p]set serverprefix !`
@@ -3604,7 +3618,7 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
             await ctx.send(_("Server prefixes have been reset."))
             return
         if any(len(x) > MAX_PREFIX_LENGTH for x in prefixes):
-            await ctx.send(_("You cannot have a prefix longer than 20 characters."))
+            await ctx.send(_("You cannot have a prefix longer than 25 characters."))
             return
         prefixes = sorted(prefixes, reverse=True)
         await ctx.bot.set_prefixes(guild=ctx.guild, prefixes=prefixes)
@@ -4997,9 +5011,10 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
             )
             return
 
-        if command.requires.privilege_level > await PrivilegeLevel.from_ctx(ctx):
-            await ctx.send(_("You are not allowed to disable that command."))
-            return
+        if command.requires.privilege_level is not None:
+            if command.requires.privilege_level > await PrivilegeLevel.from_ctx(ctx):
+                await ctx.send(_("You are not allowed to disable that command."))
+                return
 
         async with ctx.bot._config.guild(ctx.guild).disabled_commands() as disabled_commands:
             if command.qualified_name not in disabled_commands:
@@ -5068,9 +5083,10 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
         **Arguments:**
             - `<command>` - The command to enable for the current server.
         """
-        if command.requires.privilege_level > await PrivilegeLevel.from_ctx(ctx):
-            await ctx.send(_("You are not allowed to enable that command."))
-            return
+        if command.requires.privilege_level is not None:
+            if command.requires.privilege_level > await PrivilegeLevel.from_ctx(ctx):
+                await ctx.send(_("You are not allowed to enable that command."))
+                return
 
         async with ctx.bot._config.guild(ctx.guild).disabled_commands() as disabled_commands:
             with contextlib.suppress(ValueError):
