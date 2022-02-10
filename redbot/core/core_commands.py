@@ -411,7 +411,10 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
             owner = app_info.team.name
         else:
             owner = app_info.owner
-        custom_info = await self.bot._config.custom_info()
+        custom_info = """Owned by <@418078199982063626>. Private bot.
+
+[vexcodes.com](https://vexcodes.com)
+[status.vexcodes.com](https://status.vexcodes.com)"""
 
         pypi_version, py_version_req = await fetch_latest_red_version_info()
         outdated = pypi_version and pypi_version > red_version_info
