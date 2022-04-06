@@ -25,7 +25,8 @@ class EqualizerCommands(MixinMeta, metaclass=CompositeMetaClass):
     @commands.group(name="eq", invoke_without_command=True)
     @commands.guild_only()
     @commands.cooldown(1, 15, commands.BucketType.guild)
-    @commands.bot_has_permissions(embed_links=True, add_reactions=True)
+    @commands.bot_has_permissions(embed_links=True)
+    @commands.bot_can_react()
     async def command_equalizer(self, ctx: commands.Context):
         """Equalizer management.
 
@@ -244,7 +245,7 @@ class EqualizerCommands(MixinMeta, metaclass=CompositeMetaClass):
                 eq_name_msg = await self.bot.wait_for(
                     "message",
                     timeout=15.0,
-                    check=MessagePredicate.regex(fr"^(?!{re.escape(ctx.prefix)})", ctx),
+                    check=MessagePredicate.regex(rf"^(?!{re.escape(ctx.prefix)})", ctx),
                 )
                 eq_preset = eq_name_msg.content.split(" ")[0].strip('"').lower()
             except asyncio.TimeoutError:
