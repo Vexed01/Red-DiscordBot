@@ -1,12 +1,12 @@
 import datetime
 import heapq
-import logging
 import math
 import random
 from pathlib import Path
 
 import discord
 import lavalink
+from red_commons.logging import getLogger
 
 from redbot.core import commands
 from redbot.core.i18n import Translator
@@ -17,7 +17,7 @@ from redbot.core.utils.menus import DEFAULT_CONTROLS, menu
 from ..abc import MixinMeta
 from ..cog_utils import CompositeMetaClass
 
-log = logging.getLogger("red.cogs.Audio.cog.Commands.miscellaneous")
+log = getLogger("red.cogs.Audio.cog.Commands.miscellaneous")
 _ = Translator("Audio", Path(__file__))
 
 
@@ -41,17 +41,24 @@ class MiscellaneousCommands(MixinMeta, metaclass=CompositeMetaClass):
     @commands.command(name="audiostats")
     @commands.guild_only()
     @commands.is_owner()
-    @commands.bot_has_permissions(embed_links=True, add_reactions=True)
+    @commands.bot_has_permissions(embed_links=True)
+    @commands.bot_can_react()
     async def command_audiostats(self, ctx: commands.Context):
         """Audio stats."""
         server_num = len(lavalink.active_players())
-        total_num = len(lavalink.all_players())
+        total_num = len(lavalink.all_connected_players())
 
         msg = ""
-        async for p in AsyncIter(lavalink.all_players()):
-            connect_start = p.fetch("connect")
-            connect_dur = self.get_time_string(
-                int((datetime.datetime.utcnow() - connect_start).total_seconds())
+        async for p in AsyncIter(lavalink.all_connected_players()):
+            connect_dur = (
+                self.get_time_string(
+                    int(
+                        (
+                            datetime.datetime.now(datetime.timezone.utc) - p.connected_at
+                        ).total_seconds()
+                    )
+                )
+                or "0s"
             )
             try:
                 if not p.current:
@@ -59,10 +66,10 @@ class MiscellaneousCommands(MixinMeta, metaclass=CompositeMetaClass):
                 current_title = await self.get_track_description(
                     p.current, self.local_folder_current_path
                 )
-                msg += "{} [`{}`]: {}\n".format(p.channel.guild.name, connect_dur, current_title)
+                msg += f"{p.guild.name} [`{connect_dur}`]: {current_title}\n"
             except AttributeError:
                 msg += "{} [`{}`]: **{}**\n".format(
-                    p.channel.guild.name, connect_dur, _("Nothing playing.")
+                    p.guild.name, connect_dur, _("Nothing playing.")
                 )
 
         if total_num == 0:
@@ -117,7 +124,7 @@ class MiscellaneousCommands(MixinMeta, metaclass=CompositeMetaClass):
             )
             await _usercount(req_username)
         except AttributeError:
-            return await self.send_embed_msg(ctx, title=_("There's  nothing in the queue."))
+            return await self.send_embed_msg(ctx, title=_("There's nothing in the queue."))
 
         async for req_username in AsyncIter(requesters["users"]):
             percentage = float(requesters["users"][req_username]["songcount"]) / float(

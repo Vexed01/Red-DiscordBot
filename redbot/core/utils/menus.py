@@ -88,16 +88,28 @@ async def menu(
             return
 
     try:
-        react, user = await ctx.bot.wait_for(
-            "reaction_add",
-            check=ReactionPredicate.with_emojis(tuple(controls.keys()), message, ctx.author),
-            timeout=timeout,
+        predicates = ReactionPredicate.with_emojis(tuple(controls.keys()), message, ctx.author)
+        tasks = [
+            asyncio.create_task(ctx.bot.wait_for("reaction_add", check=predicates)),
+            asyncio.create_task(ctx.bot.wait_for("reaction_remove", check=predicates)),
+        ]
+        done, pending = await asyncio.wait(
+            tasks, timeout=timeout, return_when=asyncio.FIRST_COMPLETED
         )
+        for task in pending:
+            task.cancel()
+
+        if len(done) == 0:
+            raise asyncio.TimeoutError()
+        react, user = done.pop().result()
     except asyncio.TimeoutError:
         if not ctx.me:
             return
         try:
-            if message.channel.permissions_for(ctx.me).manage_messages:
+            if (
+                isinstance(message.channel, discord.PartialMessageable)
+                or message.channel.permissions_for(ctx.me).manage_messages
+            ):
                 await message.clear_reactions()
             else:
                 raise RuntimeError
@@ -126,10 +138,6 @@ async def next_page(
     timeout: float,
     emoji: str,
 ):
-    perms = message.channel.permissions_for(ctx.me)
-    if perms.manage_messages:  # Can manage messages, so remove react
-        with contextlib.suppress(discord.NotFound):
-            await message.remove_reaction(emoji, ctx.author)
     if page == len(pages) - 1:
         page = 0  # Loop around to the first item
     else:
@@ -146,10 +154,6 @@ async def prev_page(
     timeout: float,
     emoji: str,
 ):
-    perms = message.channel.permissions_for(ctx.me)
-    if perms.manage_messages:  # Can manage messages, so remove react
-        with contextlib.suppress(discord.NotFound):
-            await message.remove_reaction(emoji, ctx.author)
     if page == 0:
         page = len(pages) - 1  # Loop around to the last item
     else:
