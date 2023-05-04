@@ -412,11 +412,6 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
         """Pong."""
         await ctx.send("Pong.")
 
-    @commands.command(name="vanceversion")
-    async def com_vanceversion(self, ctx: commands.Context):
-        """Get the version of Vance's modification."""
-        await ctx.send(f"I'm running {__version__}/**{vance_version}**")
-
     @commands.command()
     async def info(self, ctx: commands.Context):
         """Shows info about [botname]."""
@@ -453,7 +448,6 @@ class Core(commands.commands._RuleDropper, commands.Cog, CoreLogic):
             dpy_version = "[{}]({})".format(discord.__version__, dpy_repo)
             python_version = "[{}.{}.{}]({})".format(*sys.version_info[:3], python_url)
             red_version = "[{}]({})".format(__version__, red_pypi)
-            vanceversion = "[{}]({})".format(vance_version, vance_repo)
 
             about = _(
                 "This bot is an instance of [Red, an open source Discord bot]({}) "
