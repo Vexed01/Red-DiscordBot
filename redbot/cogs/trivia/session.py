@@ -279,10 +279,10 @@ class TriviaSession:
 
     async def send_table(self):
         """Send a table of scores to the session's channel."""
-        table = "+ Results: \n\n"
+        table = "Results:\n\n"
         for user, score in self.scores.most_common():
             table += "+ {}\t{}\n".format(user, score)
-        await self.ctx.send(box(table, lang="diff"))
+        await self.ctx.send(box(table, lang="markdown"))
 
     def stop(self):
         """Stop the trivia session, without showing scores."""
@@ -323,7 +323,7 @@ class TriviaSession:
         if payout <= 0:
             return
         for winner in winners:
-            LOG.debug("Paying trivia winner: %d credits --> %s", payout, winner.name)
+            LOG.debug("Paying trivia winner: %d credits --> %s", payout, winner)
             try:
                 await bank.deposit_credits(winner, payout)
             except errors.BalanceTooHigh as e:
