@@ -3,6 +3,7 @@ from __future__ import annotations
 import datetime
 import itertools
 import math
+import re
 import textwrap
 from io import BytesIO, StringIO
 from typing import Any, Iterator, List, Literal, Optional, Sequence, SupportsInt, Union
@@ -560,7 +561,7 @@ def humanize_list(
     return babel_list(items, style=style, locale=get_babel_locale(locale))
 
 
-def format_perms_list(perms: discord.Permissions) -> str:
+def format_perms_list(perms: discord.Permissions, channel: Optional[bool] = False) -> str:
     """Format a list of permission names.
 
     This will return a humanized list of the names of all enabled
@@ -571,6 +572,9 @@ def format_perms_list(perms: discord.Permissions) -> str:
     perms : discord.Permissions
         The permissions object with the requested permissions to list
         enabled.
+
+    channel : Optional[bool]
+        Whether the permissions to format are for a channel context.
 
     Returns
     -------
@@ -583,7 +587,15 @@ def format_perms_list(perms: discord.Permissions) -> str:
         if value is True:
             perm_name = '"' + perm.replace("_", " ").title() + '"'
             perm_names.append(perm_name)
-    return humanize_list(perm_names).replace("Guild", "Server")
+
+    str_result = humanize_list(perm_names).replace("Guild", "Server")
+
+    if channel:
+        # Discord client UI shows the MANGE_ROLES permission as "Manage Permissions" in channel 
+        # contexts
+        str_result = str_result.replace("Manage Roles", "Manage Permissions")
+
+    return str_result
 
 
 def humanize_timedelta(
