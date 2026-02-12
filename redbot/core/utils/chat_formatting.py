@@ -6,16 +6,14 @@ import math
 import re
 import textwrap
 from io import BytesIO, StringIO
-from typing import (Any, Iterator, List, Literal, Optional, Sequence,
-                    SupportsInt, Union)
+from typing import Any, Iterator, List, Literal, Optional, Sequence, SupportsInt, Union
 
 import discord
 from babel.lists import format_list as babel_list
 from babel.numbers import format_decimal
 from rich.console import Console
 
-from redbot.core.i18n import (Translator, get_babel_locale,
-                              get_babel_regional_format)
+from redbot.core.i18n import Translator, get_babel_locale, get_babel_regional_format
 
 __all__ = (
     "error",
